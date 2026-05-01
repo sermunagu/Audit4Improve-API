@@ -1,0 +1,44 @@
+name: Flujo UVUS sermunagu
+
+on:
+  workflow_dispatch:
+  issues:
+    types: [opened]
+  project_card:
+    types: [moved]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  gestionar-evento:
+    name: Gestionar evento con UVUS sermunagu
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Mostrar informacion del evento
+        run: |
+          echo "Workflow identificado con UVUS: sermunagu"
+          echo "Evento disparador: ${{ github.event_name }}"
+          echo "Repositorio: ${{ github.repository }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Referencia: ${{ github.ref }}"
+
+      - name: Comentar issue creado
+        if: ${{ github.event_name == 'issues' }}
+        uses: actions/github-script@v9
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: "Workflow identificado con UVUS sermunagu ejecutado correctamente al crear este issue."
+            });
+
+      - name: Registrar movimiento de tarjeta de proyecto
+        if: ${{ github.event_name == 'project_card' }}
+        run: |
+          echo "Se ha detectado el movimiento de una tarjeta en un proyecto clásico."
+          echo "ID de tarjeta: ${{ github.event.project_card.id }}"
